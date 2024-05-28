@@ -8,21 +8,29 @@ const jugada = sequelize.define('jugada', {
     autoIncrement: true,
     primaryKey: true,
   },
-  resultado: {
+
+  dado1: {
     type:DataTypes.INTEGER,
     allowNull: false,
   },
 
-  jugador: DataTypes.STRING(20),
-  victoria: {
-    type: DataTypes.INTEGER,
-    //get(){ return this.resultado == 7 ? 1:0}
+  dado2: {
+    type:DataTypes.INTEGER,
+    allowNull: false,
   },
 
-  roll(id){
-    const res = (Math.floor(Math.random() * 6) + 1 ) + (Math.floor(Math.random() * 6) + 1 )
-    this.create({resultado:res, jugador:id, victoria: res == 7 ? 1:0})
-    return res
+  resultado: {
+    type: DataTypes.INTEGER // calcular ??
+  },
+
+  jugador: DataTypes.STRING(20),  //foreign key
+
+  roll(valor1:Number, valor2:Number, res, id){
+    //const dado1 = Math.floor(Math.random() * 6) + 1
+    //const dado2 = Math.floor(Math.random() * 6) + 1
+    //const res = (dado1 + dado2) == 7 ? 1:0
+    this.create({dado1:valor1, dado2:valor2, jugador:id, resultado:res})
+    //return res
   },
 
   playergames(playerId){ //buscar por nombre?
@@ -32,22 +40,22 @@ const jugada = sequelize.define('jugada', {
 
   borrarPartidas(playerId){
     Model.destroy({where:{jugador:playerId}})
-  }
+  },
 
   ranking(limit=null, order='DESC'){
     return Model.findall({
         attributes:['jugador', [sequelize.fn('COUNT', (sequelize.col('resultado')) / sequelize.fn('SUM', sequelize.col('victoria')))*100,
                     'porcentajeVictorias']], 
-        group:'jugador'})
+        group:'jugador',
+        limit: limit,
+        order:order})
   },
 
-  loser(){
-    return this.ranking(1,'ASC')
+  /*loser(){
+    return this.ranking(1)
   },
 
   winner(){
-    return this.ranking(1)
-  },
-  
-
+    return this.ranking(1, 'ASC')
+  },*/
 });
