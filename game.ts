@@ -30,7 +30,11 @@ const jugada = sequelize.define('jugada', {
     //añadir porcentaje victorias
   },
 
-  ranking(limit){
+  borrarPartidas(playerId){
+    Model.destroy({where:{jugador:playerId}})
+  }
+
+  ranking(limit=null, order='DESC'){
     return Model.findall({
         attributes:['jugador', [sequelize.fn('COUNT', (sequelize.col('resultado')) / sequelize.fn('SUM', sequelize.col('victoria')))*100,
                     'porcentajeVictorias']], 
@@ -38,11 +42,11 @@ const jugada = sequelize.define('jugada', {
   },
 
   loser(){
-
+    return this.ranking(1,'ASC')
   },
 
   winner(){
-
+    return this.ranking(1)
   },
   
 
